@@ -5,11 +5,29 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSRF</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #d9ecf2; /* Color de fondo azul claro */
+    }
+    .message {
+      text-align: left; /* Alineación del mensaje a la izquierda */
+      margin-left: 20px; /* Margen izquierdo para el mensaje */
+      margin-top: 20px; /* Margen superior para separar del contenido */
+      color: rgb(255, 0, 0); /* Color del texto del mensaje */
+    }
+  </style>
 </head>
 <body>
-  <div style="color: red;">
+  <div class="message">
     {{ message }}
   </div>
   {{{ body }}}
 </body>
 </html>
+
+
+

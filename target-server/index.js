@@ -15,6 +15,7 @@ const PORT = 3000;
 //   origin: 'http://localhost:5000',
 //   credentials: true,
 // }));
+
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
@@ -73,8 +74,12 @@ const users = JSON.parse(fs.readFileSync('db.json'));
 
 // Routes
 
+// app.get('/home', login, (req, res) => {
+//   res.send('Home page, must be logged in to access');
+// });
+
 app.get('/home', login, (req, res) => {
-  res.send('Home page, must be logged in to access');
+  res.render('home', { message: req.flash('message') });
 });
 
 app.get('/login', (req, res) => {
@@ -96,28 +101,39 @@ app.post('/login', (req, res) => {
   req.session.userId = user.id;
   //tokens.set(req.sessionID, new Set());
   console.log(req.session);
+  req.flash('message', 'You have logged in correctly');
   res.redirect('/home');
 });
 
 app.get('/logout', login, (req, res) => {
   req.session.destroy();
-  res.send('Logged out');
+  return res.redirect('/login');
 })
 
 app.get('/edit', login, (req, res) => {
   //Ruta protegida con el middleware del login
   //res.render('edit', { token: csrfToken(req.sessionID) });
-  res.render('edit');
+  res.render('edit', { message: req.flash('message') });
 });
 
 app.post('/edit', login, /*csrf,*/ (req, res) => {
   const user = users.find(user => user.id === req.session.userId);
+  
+  if (!req.body.email || req.body.email.trim() === '') {
+    req.flash('message', 'Introduce a valid email');
+    return res.redirect('/edit');
+  } else {
+
   user.email = req.body.email;
   console.log(`User ${user.id} email changed to ${user.email}`);
   // fs.writeFileSync('db.json', JSON.stringify(users));
+  new_email = user.email
+  req.flash('message', 'Email changed to ' + new_email);
+  return res.redirect('/home');
+  }
 
-  res.send(`Email changed to ${user.email}`);
 });
+
 
 // Server
 
