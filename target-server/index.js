@@ -3,18 +3,11 @@ const session = require('express-session');
 const flash = require('connect-flash-plus');
 const handlebars = require('express-handlebars');
 const { v4: uuid } = require('uuid');
-const cors = require('cors');
 const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
 
-// Middlwares
-
-// app.use(cors({
-//   origin: 'http://localhost:5000',
-//   credentials: true,
-// }));
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,37 +39,33 @@ const login = (req, res, next) => {
 
 // CSRF
 
-// const tokens = new Map();
+const tokens = new Map();
 
 //Asociamos token a la sessionID
-// const csrfToken = (sessionId) => {
-//   const token = uuid();
-//   const userTokens = tokens.get(sessionId);
-//   userTokens.add(token);
-//   setTimeout(() => userTokens.delete(token), 30000);
+const csrfToken = (sessionId) => {
+  const token = uuid();
+  const userTokens = tokens.get(sessionId);
+  userTokens.add(token);
+  setTimeout(() => userTokens.delete(token), 30000);
 
-//   return token;
-// }
+  return token;
+}
 
 //Middleware para la comprobacion
-// const csrf = (req, res, next) => {
-//   const token = req.body.csrf;
-//   if (!token || !tokens.get(req.sessionID).has(token)) {
-//     res.status(422).send('CSRF Token missing or expired');
-//   } else {
-//     next();
-//   }
-// }
+const csrf = (req, res, next) => {
+  const token = req.body.csrf;
+  if (!token || !tokens.get(req.sessionID).has(token)) {
+    res.status(422).send('CSRF Token missing or expired');
+  } else {
+    next();
+  }
+}
 
 // Db
 
 const users = JSON.parse(fs.readFileSync('db.json'));
 
 // Routes
-
-// app.get('/home', login, (req, res) => {
-//   res.send('Home page, must be logged in to access');
-// });
 
 app.get('/home', login, (req, res) => {
   res.render('home', { message: req.flash('message') });
@@ -99,7 +88,7 @@ app.post('/login', (req, res) => {
     return res.redirect('/login');
   }
   req.session.userId = user.id;
-  //tokens.set(req.sessionID, new Set());
+  tokens.set(req.sessionID, new Set());
   console.log(req.session);
   req.flash('message', 'You have logged in correctly');
   res.redirect('/home');
@@ -112,21 +101,21 @@ app.get('/logout', login, (req, res) => {
 
 app.get('/edit', login, (req, res) => {
   //Ruta protegida con el middleware del login
-  //res.render('edit', { token: csrfToken(req.sessionID) });
-  res.render('edit', { message: req.flash('message') });
+  res.render('edit', { token: csrfToken(req.sessionID), message: req.flash('message')} );
 });
 
-app.post('/edit', login, /*csrf,*/ (req, res) => {
+app.post('/edit', login, csrf, (req, res) => {
   const user = users.find(user => user.id === req.session.userId);
-  
-  if (!req.body.email || req.body.email.trim() === '') {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+
+  if (!req.body.email || req.body.email.trim() === '' || !emailRegex.test(req.body.email.trim())) {
     req.flash('message', 'Introduce a valid email');
     return res.redirect('/edit');
   } else {
 
   user.email = req.body.email;
   console.log(`User ${user.id} email changed to ${user.email}`);
-  // fs.writeFileSync('db.json', JSON.stringify(users));
+  //fs.writeFileSync('db.json', JSON.stringify(users));
   new_email = user.email
   req.flash('message', 'Email changed to ' + new_email);
   return res.redirect('/home');
